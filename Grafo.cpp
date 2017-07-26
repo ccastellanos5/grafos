@@ -21,14 +21,14 @@ class Grafo
     /*------CONSULTORES------*/
     bool esVacio();
     int cardinalidad();
-    Lista<vertices> vertices();
+    Lista<vertice> obtVertices();
     bool existeVertice(vertice v);
     bool existeArco(vertice v, vertice w);
-    Lista<vertices> sucesores(vertice v);
-    Lista<vertices> predecesores(vertice v);
+    Lista<vertice> sucesores(vertice v);
+    Lista<vertice> predecesores(vertice v);
     /*------MODIFICADORES------*/
     void insertarVertice(vertice v);
-    void insertarArco(vertice v, w);
+    void insertarArco(vertice v, vertice w);
     /*------DESTRUCTORES------*/
     ~Grafo();
 
@@ -54,11 +54,11 @@ int Grafo<vertice>::cardinalidad()
   return this->vertices;
 }
 
-template<class vertices>
-Lista<vertices> vertices()
+template<class vertice>
+Lista<vertice> Grafo<vertice>::obtVertices()
 {
-  Lista<vertices> L;
-  NodoV<vertices> *aux;
+  Lista<vertice> L;
+  NodoV<vertice> *aux;
 
   if(this->primero != NULL)
   {
@@ -72,7 +72,7 @@ Lista<vertices> vertices()
   return L;
 }
 
-template<class vertices>
+template<class vertice>
 bool Grafo<vertice>::existeVertice(vertice v)
 {
   bool band;
@@ -95,7 +95,7 @@ bool Grafo<vertice>::existeVertice(vertice v)
   return band;
 }
 
-template<class vertices>
+template<class vertice>
 bool Grafo<vertice>::existeArco(vertice v, vertice w)
 {
   bool band;
@@ -262,7 +262,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
 {
   NodoV<vertice> act, aux2, aux3;
   NodoA<vertice> aux;
-  bool band, band2;
+  bool band, band2, band3;
   if(this->primero == NULL)
   {
     //creo el primero nodo vertice
