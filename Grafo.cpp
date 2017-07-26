@@ -356,7 +356,35 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
       aux->modVertice(aux3);      //Apunta a w
       aux->modProx(aux2->obtPrimero()); //el prox del nodo ady apunta a la lista de lso adyacentes quedando como el primero
       aux2->modPrimero(aux);  //el primero del nodo vertice pasa a ser el recien creado
+      this->arcos = this->arcos + 1;
     }
   }
+}
+
+/*---------------------------DESTRUCTORES---------------------------*/
+template <class vertice>
+Grafo<vertice>::~Grafo()
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *aux, *aux2;
+
+  act = this->primero;
+  while(act!=NULL)
+  {
+    aux = act->obtPrimero();
+    while(aux!= NULL)
+    {
+      aux2 = aux;
+      aux = aux->obtProx();
+      delete aux2->obtVertice();
+      delete aux2;
+    }
+
+    this->primero = act->obtProx();
+    delete act;
+    act = this->primero;
+  }
+  this->vertices = 0;
+  this->arcos = 0;
 }
 #endif
