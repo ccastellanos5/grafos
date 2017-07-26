@@ -314,57 +314,48 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
         }
       }
 
-      if(band && band2) // si existen ambos nodos v y w
+      if(band && !band2) //Si existe solo el nodo v
       {
-        aux = new NodoA<vertice>;   //Aqui creo el nuevo nodo ady
-        aux->modVertice(aux3);      //Apunta a w
-        aux->modProx(aux2->obtPrimero()); //el prox del nodo ady apunta a la lista de lso adyacentes quedando como el primero
-        aux2->modPrimero(aux);  //el primero del nodo vertice pasa a ser el recien creado
+        //creo el nodo para w
+        aux3 = new NodoV<vertice>;
+        aux3->modInfo(w);
+        //lo enlazo a la lista de vertices
+        aux3->modProx(this->primero);
+        this->primero = aux3;
+
       }
       else
       {
-        if(band) //Si existe solo el nodo v
+        if(band2 && !band) //si solo existe w
         {
+          //creo el nodo para v
+          aux2 = new NodoV<vertice>;
+          aux2->modInfo(v);
+          //lo enlazo a la lista de vertices
+          aux2->modProx(this->primero);
+          this->primero = aux2;
+        }
+        else if(!band && !band2) //Si no exitse v ni w pero tampoco es vacio el grafo
+        {
+          //creo el nodo para v
+          aux2 = new NodoV<vertice>;
+          aux2->modInfo(v);
+          //lo enlazo a la lista de vertices
+          aux2->modProx(this->primero);
+          this->primero = aux2;
           //creo el nodo para w
           aux3 = new NodoV<vertice>;
           aux3->modInfo(w);
           //lo enlazo a la lista de vertices
           aux3->modProx(this->primero);
           this->primero = aux3;
-
         }
-        else
-        {
-          if(band2) //si solo existe w
-          {
-            //creo el nodo para v
-            aux2 = new NodoV<vertice>;
-            aux2->modInfo(v);
-            //lo enlazo a la lista de vertices
-            aux2->modProx(this->primero);
-            this->primero = aux2;
-          }
-          else //Si no exitse v ni w pero tampoco es vacio el grafo
-          {
-            //creo el nodo para v
-            aux2 = new NodoV<vertice>;
-            aux2->modInfo(v);
-            //lo enlazo a la lista de vertices
-            aux2->modProx(this->primero);
-            this->primero = aux2;
-            //creo el nodo para w
-            aux3 = new NodoV<vertice>;
-            aux3->modInfo(w);
-            //lo enlazo a la lista de vertices
-            aux3->modProx(this->primero);
-            this->primero = aux3;
-          }
-        }
-        aux = new NodoA<vertice>;   //Aqui creo el nuevo nodo ady
-        aux->modVertice(aux3);      //Apunta a w
-        aux->modProx(aux2->obtPrimero()); //el prox del nodo ady apunta a la lista de lso adyacentes quedando como el primero
-        aux2->modPrimero(aux);  //el primero del nodo vertice pasa a ser el recien creado
       }
+      // Aqui hace el enlace del arco para todos los casos, includo cuando v y w existen
+      aux = new NodoA<vertice>;   //Aqui creo el nuevo nodo ady
+      aux->modVertice(aux3);      //Apunta a w
+      aux->modProx(aux2->obtPrimero()); //el prox del nodo ady apunta a la lista de lso adyacentes quedando como el primero
+      aux2->modPrimero(aux);  //el primero del nodo vertice pasa a ser el recien creado
     }
   }
 }
