@@ -29,6 +29,8 @@ class Grafo
     /*------MODIFICADORES------*/
     void insertarVertice(vertice v);
     void insertarArco(vertice v, vertice w);
+    void eliminarVertice(vertice v);
+    void eliminarArco(vertice v, vertice w);
     /*------DESTRUCTORES------*/
     ~Grafo();
 
@@ -361,6 +363,98 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
   }
 }
 
+template<class vertice>
+void Grafo<vertice>::eliminarVertice(vertice v)
+{
+  NodoA<vertice> *aux, *aux1;
+  NodoV<vertice> *act, *ant;
+  bool band;
+
+  act = this->primero;
+  ant = NULL;
+  band = false;
+  while(act != NULL && !band)
+  {
+    if(act->obtInfo()==v)
+    {
+      band = true;
+      if(act == this->primero) //Esto es por si el vertice es el primero de la lista
+      {
+        ant = act->obtProx();
+        this->primero = ant;
+      }
+      else        //Este condicional es basicamente para hacer el enlace de la lista y tener el nodo que voy a eliminar aparte en el apuntador act
+      {
+        ant->modProx(act->obtProx());
+      }
+    }
+    else
+    {
+      ant = act;
+      act = act->obtProx();
+    }
+  }
+
+  if(band)        //Si encontro el vertice
+  {
+    aux = act->obtPrimero();
+    while(aux != NULL)
+    {
+      aux1 = aux->obtProx();
+      delete aux;
+      aux = aux1;
+    }
+    delete act;
+  }
+}
+
+template<class vertice>
+void Grafo<vertice>::eliminarArco(vertice v, vertice w)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *aux, *ant;
+  bool band;
+
+  if(this->existeArco(v, w))
+  {
+    band = true;
+    act = this->primero;
+    while(!band)
+    {
+      if(act->obtInfo()==v)
+        band = true;
+      else
+        act = act->obtInfo();
+    }
+    //No necesito preguntar por el booleano porque como existe el arco, entonces es seguro que se va a salir con band == true
+
+    aux = act->obtPrimero();
+    band = false;
+    while(!band)
+    {
+      if(aux->obtVertice()->obtInfo()==w)
+      {
+        band = true;
+        if(aux == act->obtPrimero())
+        {
+          ant = aux->obtProx();
+          act->modPrimero(ant);
+        }
+        else
+        {
+          ant->modProx(aux->obtProx());
+        }
+      }
+      else
+      {
+        ant = aux;
+        aux = aux->obtProx();
+      }
+    }
+    //No necesito preguntar por el booleano porque como existe el arco, entonces es seguro que se va a salir con band == true
+    delete aux;
+  }
+}
 /*---------------------------DESTRUCTORES---------------------------*/
 template <class vertice>
 Grafo<vertice>::~Grafo()
@@ -376,7 +470,6 @@ Grafo<vertice>::~Grafo()
     {
       aux2 = aux;
       aux = aux->obtProx();
-      delete aux2->obtVertice();
       delete aux2;
     }
 
