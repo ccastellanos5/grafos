@@ -22,6 +22,7 @@ class Grafo
     /*------CONSULTORES------*/
     bool esVacio();
     int cardinalidad();
+    int obtNumArcos();
     Lista<vertice> obtVertices();
     bool existeVertice(vertice v);
     bool existeArco(vertice v, vertice w);
@@ -60,6 +61,12 @@ int Grafo<vertice>::cardinalidad()
 }
 
 template<class vertice>
+int Grafo<vertice>::obtNumArcos()
+{
+    return this->arcos;
+}
+
+template<class vertice>
 Lista<vertice> Grafo<vertice>::obtVertices()
 {
   Lista<vertice> L;
@@ -81,7 +88,7 @@ template<class vertice>
 bool Grafo<vertice>::existeVertice(vertice v)
 {
   bool band;
-  NodoV<vertice>* aux;
+  NodoV<vertice> *aux;
 
   band = false;
   if(this->primero != NULL)
@@ -109,31 +116,26 @@ bool Grafo<vertice>::existeArco(vertice v, vertice w)
 
   band = false;
 
-  if(this->primero != NULL)
+  act = this->primero;
+  while(act != NULL && !band)
   {
-    act = this->primero;
-    while(act != NULL && !band)
-    {
-      if(act->obtInfo() == v)
-      {
-        band = true;
-      }
+    if(act->obtInfo() == v)
+      band = true;
+    else
       act = act->obtProx();
-    }
+  }
 
-    if(band)
+  if(band)
+  {
+    band = false;
+    aux = act->obtPrimero();
+    while (aux != NULL && !band)
     {
-      band = false;
-      aux = act->obtPrimero();
-      while (aux != NULL && !band)
-      {
-        if(aux->obtVertice()->obtInfo() == w)
-          band = true;
-
+      if(aux->obtVertice()->obtInfo() == w)
+        band = true;
+      else
         aux = aux->obtProx();
-      }
     }
-
   }
 
   return band;
@@ -176,8 +178,8 @@ template<class vertice>
 Lista<vertice> Grafo<vertice>::sucesores(vertice v)
 {
   Lista<vertice> L;
-  NodoV<vertice> aux;
-  NodoA<vertice> act;
+  NodoV<vertice> *aux;
+  NodoA<vertice> *act;
   bool band;
 
   if(this->primero != NULL)
@@ -208,34 +210,31 @@ template<class vertice>
 Lista<vertice> Grafo<vertice>::predecesores(vertice v)
 {
   Lista<vertice> L;
-  NodoA<vertice> aux;
-  NodoV<vertice> act;
+  NodoA<vertice> *aux;
+  NodoV<vertice> *act;
   bool band;
 
-  if(this->primero != NULL)
+  act = this->primero;
+  while(act!=NULL)
   {
-    act = this->primero;
-    while(act!=NULL)
+    if(act->obtInfo() != v)
     {
-      if(act->obtInfo() != v)
+      aux = act->obtPrimero();
+      band = false;
+      while(aux != NULL && !band)
       {
-        aux = act->obtPrimero();
-        band = false;
-        while(aux != NULL && !band)
+        if(aux->obtVertice()->obtInfo() == v)
         {
-          if(aux->obtVertice()->obtInfo() == v)
-          {
-            band =true;
-            L.insertar(aux->obtVertice()->obtInfo(), 1);
-          }
-          else
-          {
-            aux = aux->obtProx();
-          }
+          band =true;
+          L.insertar(act->obtInfo(), 1);
+        }
+        else
+        {
+          aux = aux->obtProx();
         }
       }
-      act=act->obtProx();
     }
+    act=act->obtProx();
   }
   return L;
 }
@@ -257,6 +256,7 @@ void Grafo<vertice>::print()
       cout << "---->" << ady->obtVertice()->obtInfo() << endl;
       ady = ady->obtProx();
     }
+    act = act->obtProx();
   }
 }
 /*---------------------------MODIFICADORES---------------------------*/
@@ -265,19 +265,22 @@ void Grafo<vertice>::insertarVertice(vertice v)
 {
   NodoV<vertice> *nuevo, *aux;
 
-  nuevo = new Nodo<vertice>;
-  nuevo->modInfo(v);
-  this->vertices = this->vertices + 1;
   if(this->primero == NULL)
   {
+    nuevo = new NodoV<vertice>;
+    nuevo->modInfo(v);
     this->primero = nuevo;
+    this->vertices = this->vertices + 1;
   }
   else
   {
-    if(!this->existeVertice())
+    if(!this->existeVertice(v))
     {
+      nuevo = new NodoV<vertice>;
+      nuevo->modInfo(v);
       nuevo->modProx(this->primero);
       this->primero = nuevo;
+      this->vertices = this->vertices + 1;
     }
   }
 }
@@ -285,8 +288,8 @@ void Grafo<vertice>::insertarVertice(vertice v)
 template<class vertice>
 void Grafo<vertice>::insertarArco(vertice v, vertice w)
 {
-  NodoV<vertice> act, aux2, aux3;
-  NodoA<vertice> aux;
+  NodoV<vertice> *act, *aux2, *aux3;
+  NodoA<vertice> *aux;
   bool band, band2, band3;
   if(this->primero == NULL)
   {
@@ -305,6 +308,8 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
     aux2->modPrimero(aux);
     //apunta al vertice w
     aux->modVertice(aux3);
+    this->arcos = this->arcos + 1;
+    this->vertices = this->vertices + 1;
   }
   else
   {
@@ -347,6 +352,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
         //lo enlazo a la lista de vertices
         aux3->modProx(this->primero);
         this->primero = aux3;
+        this->vertices = this->vertices + 1;
 
       }
       else
@@ -359,6 +365,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
           //lo enlazo a la lista de vertices
           aux2->modProx(this->primero);
           this->primero = aux2;
+          this->vertices = this->vertices + 1;
         }
         else if(!band && !band2) //Si no exitse v ni w pero tampoco es vacio el grafo
         {
@@ -374,6 +381,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
           //lo enlazo a la lista de vertices
           aux3->modProx(this->primero);
           this->primero = aux3;
+          this->vertices = this->vertices + 2;
         }
       }
       // Aqui hace el enlace del arco para todos los casos, includo cuando v y w existen
@@ -428,6 +436,7 @@ void Grafo<vertice>::eliminarVertice(vertice v)
       aux = aux1;
     }
     delete act;
+    this->vertices = this->vertices - 1;
   }
 }
 
@@ -440,14 +449,14 @@ void Grafo<vertice>::eliminarArco(vertice v, vertice w)
 
   if(this->existeArco(v, w))
   {
-    band = true;
+    band = false;
     act = this->primero;
     while(!band)
     {
       if(act->obtInfo()==v)
         band = true;
       else
-        act = act->obtInfo();
+        act = act->obtProx();
     }
     //No necesito preguntar por el booleano porque como existe el arco, entonces es seguro que se va a salir con band == true
 
@@ -476,6 +485,7 @@ void Grafo<vertice>::eliminarArco(vertice v, vertice w)
     }
     //No necesito preguntar por el booleano porque como existe el arco, entonces es seguro que se va a salir con band == true
     delete aux;
+    this->arcos = this->arcos - 1;
   }
 }
 /*---------------------------DESTRUCTORES---------------------------*/
