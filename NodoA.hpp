@@ -2,6 +2,7 @@
 #define NODOA_H
 #include <iostream>
 
+
 template<class vertice>
 class NodoV;
 

@@ -1,5 +1,5 @@
-#ifdef NODOV_H
-#define NODO_H
+#ifndef NODOV_H
+#define NODOV_H
 #include <iostream>
 
 template<class T>
@@ -17,8 +17,8 @@ class NodoV
     NodoV();
     NodoV(NodoV<vertice> *p, NodoA<vertice> *pri, vertice i, bool mark);
     vertice obtInfo();
-    NodoV<vertice> obtProx();
-    NodoA<vertice> obtPrimero();
+    NodoV<vertice>* obtProx();
+    NodoA<vertice>* obtPrimero();
     bool obtVisitado();
     void modInfo(vertice nuevo);
     void modProx(NodoV<vertice> *nuevo);

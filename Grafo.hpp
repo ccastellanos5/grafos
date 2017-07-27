@@ -1,10 +1,11 @@
 #ifndef GRAFO_H
 #define GRAFO_H
 #include <iostream>
+#include <cstdlib>
 #include "Lista.h"
 #include "Cola.h"
-#include "NodoA.cpp"
-#include "NodoV.cpp"
+#include "NodoV.hpp"
+#include "NodoA.hpp"
 
 using namespace std;
 
@@ -26,6 +27,8 @@ class Grafo
     bool existeArco(vertice v, vertice w);
     Lista<vertice> sucesores(vertice v);
     Lista<vertice> predecesores(vertice v);
+    /*------IMPRESORES------*/
+    void print();
     /*------MODIFICADORES------*/
     void insertarVertice(vertice v);
     void insertarArco(vertice v, vertice w);
@@ -235,6 +238,26 @@ Lista<vertice> Grafo<vertice>::predecesores(vertice v)
     }
   }
   return L;
+}
+/*---------------------------IMPRESORES---------------------------*/
+template<class vertice>
+void Grafo<vertice>::print()
+{
+  NodoA<vertice> *ady;
+  NodoV<vertice> *act;
+
+  act = this->primero;
+  while(act != NULL)
+  {
+    cout << "Vertice: " << act->obtInfo() <<endl;
+    ady = act->obtPrimero();
+    cout << "Con Arcos hacia: " << endl;
+    while (ady != NULL)
+    {
+      cout << "---->" << ady->obtVertice()->obtInfo() << endl;
+      ady = ady->obtProx();
+    }
+  }
 }
 /*---------------------------MODIFICADORES---------------------------*/
 template <class vertice>
