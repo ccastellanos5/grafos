@@ -15,23 +15,18 @@ int main()
   G.insertarVertice('f');
   G.insertarVertice('e');
 
-  G.insertarArco('a','f');
-  G.insertarArco('a','b');
-  G.insertarArco('a','c');
-  G.insertarArco('b','d');
-  G.insertarArco('c','d');
-  G.insertarArco('c','e');
-  G.insertarArco('d','a');
-  G.insertarArco('d','e');
-  G.insertarArco('f','b');
+  G.insertarArco('a','f',0);
+  G.insertarArco('a','b',0);
+  G.insertarArco('a','c',0);
+  G.insertarArco('b','d',0);
+  G.insertarArco('c','d',0);
+  G.insertarArco('c','e',0);
+  G.insertarArco('d','a',0);
+  G.insertarArco('d','e',0);
+  G.insertarArco('f','b',0);
 
-  vertices = G.obtVertices();
-  vertices.imprimir();
 
   G.print();
-  predecesores = G.predecesores('b');
-  cout << "Predecesores: ";
-  predecesores.imprimir();
 
   cout << "Numero de arcos: " << G.obtNumArcos() << endl;
   cout << "Cardinalidad: " << G.cardinalidad() << endl;

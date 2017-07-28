@@ -26,13 +26,17 @@ class Grafo
     Lista<vertice> obtVertices();
     bool existeVertice(vertice v);
     bool existeArco(vertice v, vertice w);
+    bool estaVisitado(vertice v);
     Lista<vertice> sucesores(vertice v);
     Lista<vertice> predecesores(vertice v);
     /*------IMPRESORES------*/
     void print();
     /*------MODIFICADORES------*/
+    void marcarVisitado(vertice v);
+    void desmarcarVisitado(vertice v);
+    void desmarcarVertices();
     void insertarVertice(vertice v);
-    void insertarArco(vertice v, vertice w);
+    void insertarArco(vertice v, vertice w, float costo);
     void eliminarVertice(vertice v);
     void eliminarArco(vertice v, vertice w);
     /*------DESTRUCTORES------*/
@@ -174,6 +178,27 @@ bool Grafo<vertice>::existeArco(vertice v, vertice w)
   // }
 }
 
+//TIENE QUE EXISTIR EL VERTICE
+template<class vertice>
+bool Grafo<vertice>::estaVisitado(vertice v)
+{
+  NodoV<vertice> *act;
+  bool band;
+
+  act = this->primero;
+  band = false;
+  //No hace falta la condicion act!=NULL porque se supone que existe y en algun momento se saldra con el booleano
+  while(!band)
+  {
+    if(act->obtInfo()==v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+
+  return act->obtVisitado();
+}
+
 template<class vertice>
 Lista<vertice> Grafo<vertice>::sucesores(vertice v)
 {
@@ -260,6 +285,59 @@ void Grafo<vertice>::print()
   }
 }
 /*---------------------------MODIFICADORES---------------------------*/
+template<class vertice>
+void Grafo<vertice>::marcarVisitado(vertice v)
+{
+  NodoV<vertice> *act;
+  bool band;
+
+  act = this->primero;
+  band = false;
+  while(act!=NULL && !band)
+  {
+    if(act->obtInfo()==v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+
+  if(band)
+    act->modVisitado(true);
+}
+
+template<class vertice>
+void Grafo<vertice>::desmarcarVisitado(vertice v)
+{
+  NodoV<vertice> *act;
+  bool band;
+
+  band = false;
+  act = this->primero;
+  while(act!=NULL && !band)
+  {
+    if(act->obtInfo()==v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+
+  if(band)
+    act->modVisitado(false);
+}
+
+template<class vertice>
+void Grafo<vertice>::desmarcarVertices()
+{
+  NodoV<vertice> *act;
+
+  act = this->primero;
+  while(act!=NULL)
+  {
+    act->modVisitado(false);
+    act = act->obtProx();
+  }
+}
+
 template <class vertice>
 void Grafo<vertice>::insertarVertice(vertice v)
 {
@@ -286,7 +364,7 @@ void Grafo<vertice>::insertarVertice(vertice v)
 }
 
 template<class vertice>
-void Grafo<vertice>::insertarArco(vertice v, vertice w)
+void Grafo<vertice>::insertarArco(vertice v, vertice w, float costo)
 {
   NodoV<vertice> *act, *aux2, *aux3;
   NodoA<vertice> *aux;
@@ -308,6 +386,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
     aux2->modPrimero(aux);
     //apunta al vertice w
     aux->modVertice(aux3);
+    aux->modCosto(costo);
     this->arcos = this->arcos + 1;
     this->vertices = this->vertices + 1;
   }
@@ -388,6 +467,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w)
       aux = new NodoA<vertice>;   //Aqui creo el nuevo nodo ady
       aux->modVertice(aux3);      //Apunta a w
       aux->modProx(aux2->obtPrimero()); //el prox del nodo ady apunta a la lista de lso adyacentes quedando como el primero
+      aux->modCosto(costo);
       aux2->modPrimero(aux);  //el primero del nodo vertice pasa a ser el recien creado
       this->arcos = this->arcos + 1;
     }
