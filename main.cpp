@@ -25,9 +25,9 @@ int main()
   G.insertarArco('d','e',0);
   G.insertarArco('f','b',0);
 
-
   G.print();
 
+  cout << "Grado Interno: " << G.gradoV('a') << endl;
   cout << "Numero de arcos: " << G.obtNumArcos() << endl;
   cout << "Cardinalidad: " << G.cardinalidad() << endl;
   return 0;

@@ -27,6 +27,9 @@ class Grafo
     bool existeVertice(vertice v);
     bool existeArco(vertice v, vertice w);
     bool estaVisitado(vertice v);
+    int gradoInterno(vertice v);
+    int gradoExterno(vertice v);
+    int gradoV(vertice);
     Lista<vertice> sucesores(vertice v);
     Lista<vertice> predecesores(vertice v);
     /*------IMPRESORES------*/
@@ -197,6 +200,92 @@ bool Grafo<vertice>::estaVisitado(vertice v)
   }
 
   return act->obtVisitado();
+}
+
+// El grado interno de un nodo es el número de aristas que terminan en ese nodo
+template<class vertice>
+int Grafo<vertice>::gradoInterno(vertice v)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady;
+  int cont;
+  bool band, band2;
+
+  act = this->primero;
+  band2 = false;
+  cont = 0;
+  while(act != NULL)
+  {
+    if(act->obtInfo()!=v)
+    {
+      ady = act->obtPrimero();
+      band = false;
+      while(ady != NULL && !band)
+      {
+        if(ady->obtVertice()->obtInfo()==v)
+        {
+          band = true;
+          cont++;
+        }
+        else
+        {
+          ady = ady->obtProx();
+        }
+      }
+    }
+    else
+    {
+      band2 = true;
+    }
+    act = act->obtProx();
+  }
+
+  if(band2)
+    return cont;
+  else
+    return -1;
+}
+
+// el grado externo de un nodo, es el número de aristas que salen de ese nodo
+template<class vertice>
+int Grafo<vertice>::gradoExterno(vertice v)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady;
+  int cont;
+  bool band;
+
+  act = this->primero;
+  band = false;
+  while(act!=NULL && !band)
+  {
+    if(act->obtInfo()==v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+  if(band)
+  {
+    ady = act->obtPrimero();
+    cont = 0;
+    while(ady != NULL)
+    {
+      cont++;
+      ady = ady->obtProx();
+    }
+    return cont;
+  }
+  else
+  {
+    return -1;
+  }
+}
+
+//Es la suma de su grado externo e interno
+template<class vertice>
+int Grafo<vertice>::gradoV(vertice v)
+{
+  return this->gradoInterno(v) + this->gradoExterno(v);
 }
 
 template<class vertice>
