@@ -19,6 +19,8 @@ class Grafo
   public:
     /*------CONSTRUCTORES---------*/
     Grafo();
+    Grafo(Grafo<vertice> &orig);
+    void copiar(const Grafo<vertice> &orig);
     /*------CONSULTORES------*/
     bool esVacio();
     int cardinalidad();
@@ -53,6 +55,84 @@ Grafo<vertice>::Grafo()
   this->primero = NULL;
   this->arcos = 0;
   this->vertices = 0;
+}
+
+template<class vertice>
+Grafo<vertice>::Grafo(Grafo<vertice> &orig)
+{
+  this->arcos = 0;
+  this->vertices = 0;
+  this->copiar(orig);
+}
+
+template<class vertice>
+void Grafo<vertice>::copiar(const Grafo<vertice> &orig)
+{
+  NodoV<vertice> *act, *nuevoV, *ant, *aux, *estatico;
+  NodoA<vertice> *ady, *nuevoA, *antA;
+  bool band;
+
+  if(orig.primero != NULL)
+  {
+    this->arcos = orig.arcos;
+    this->vertices = orig.vertices;
+    act = orig.primero;
+    //Construye primero la lista de vertices
+    while(act != NULL)
+    {
+      this->insertarVertice(act->obtInfo());
+      act = act->obtProx();
+    }
+
+    act = orig.primero;
+    while(act != NULL)
+    {
+      ady = act->obtPrimero();
+      while(ady != NULL)
+      {
+        this->insertarArco(act->obtInfo(), ady->obtVertice()->obtInfo(), ady->obtCosto());
+        ady = ady->obtProx();
+      }
+      // aux = orig.primero;
+      // band = false;
+      // while(aux != NULL && !band)
+      // {
+      //   if(aux->obtInfo()==act->obtInfo())
+      //   {
+      //     estatico = aux;
+      //     band = true;
+      //   }
+      //   else
+      //     aux = aux->obtProx();
+      // }
+      // while(ady != NULL)
+      // {
+      //   nuevoA = new NodoA<vertice>;
+      //   aux = orig.primero;
+      //   band = false;
+      //   while(aux!=NULL && !band)
+      //   {
+      //
+      //     if(aux->obtInfo() == ady->obtVertice()->obtInfo())
+      //     {
+      //       nuevoA->modVertice(aux);
+      //       band = true;
+      //     }
+      //     else
+      //       aux = aux->obtProx();
+      //   }
+      //
+      //   if(estatico->obtPrimero() == NULL)
+      //     estatico->modPrimero(nuevoA);
+      //   else
+      //     antA->modProx(nuevoA);
+      //
+      //   antA = nuevoA;
+      //   ady = ady->obtProx();
+      // }
+      act = act->obtProx();
+    }
+  }
 }
 /*---------------------------CONSULTORES---------------------------*/
 template<class vertice>

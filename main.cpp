@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-  Grafo<char> G;
+  Grafo<char> G, G2;
   Lista<char> vertices, predecesores;
 
   G.insertarVertice('a');
@@ -26,6 +26,8 @@ int main()
   G.insertarArco('f','b',0);
 
   G.print();
+  G2.copiar(G);
+  G2.print();
 
   cout << "Grado Interno: " << G.gradoV('a') << endl;
   cout << "Numero de arcos: " << G.obtNumArcos() << endl;
