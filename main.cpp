@@ -25,9 +25,16 @@ int main()
   G.insertarArco('d','e',0);
   G.insertarArco('f','b',0);
 
+  vertices = G.obtVertices();
+  vertices.imprimir();
+  cout << "DESPUES DE ELIMINAR" << endl;
+
+  G.eliminarVertice('a');
+  vertices = G.obtVertices();
+  vertices.imprimir();
+
   G.print();
-  G2.copiar(G);
-  G2.print();
+
 
   cout << "Grado Interno: " << G.gradoV('a') << endl;
   cout << "Numero de arcos: " << G.obtNumArcos() << endl;

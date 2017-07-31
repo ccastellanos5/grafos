@@ -647,17 +647,15 @@ template<class vertice>
 void Grafo<vertice>::eliminarVertice(vertice v)
 {
   NodoA<vertice> *aux, *aux1;
-  NodoV<vertice> *act, *ant;
+  NodoV<vertice> *act, *ant, *aux3;
   bool band;
 
   act = this->primero;
   ant = NULL;
-  band = false;
-  while(act != NULL && !band)
+  while(act != NULL)
   {
     if(act->obtInfo()==v)
     {
-      band = true;
       if(act == this->primero) //Esto es por si el vertice es el primero de la lista
       {
         ant = act->obtProx();
@@ -667,25 +665,47 @@ void Grafo<vertice>::eliminarVertice(vertice v)
       {
         ant->modProx(act->obtProx());
       }
+      //Luego de encontrarlo borra todos sus sucesores
+      aux = act->obtPrimero();
+      while(aux != NULL)
+      {
+        aux1 = aux->obtProx();
+        delete aux;
+        aux = aux1;
+      }
+      ant = act;
+      act = act->obtProx();
+      aux3 = act;
+      delete aux3;
+      this->vertices = this->vertices - 1;
     }
     else
     {
+
+      cout << "ENTREEEEEE---------------"<< act->obtInfo() << endl;
+      aux = act->obtPrimero();
+      band = false;
+      while(aux!=NULL && !band)
+      {
+        if(aux->obtVertice()->obtInfo()==v)
+        {
+          band = true;
+          if(aux == act->obtPrimero())
+            act->modPrimero(aux->obtProx());
+          else
+            aux1->modProx(aux->obtProx());
+
+          delete aux;
+        }
+        else
+        {
+          aux1 = aux;
+          aux = aux->obtProx();
+        }
+      }
       ant = act;
       act = act->obtProx();
     }
-  }
-
-  if(band)        //Si encontro el vertice
-  {
-    aux = act->obtPrimero();
-    while(aux != NULL)
-    {
-      aux1 = aux->obtProx();
-      delete aux;
-      aux = aux1;
-    }
-    delete act;
-    this->vertices = this->vertices - 1;
   }
 }
 
