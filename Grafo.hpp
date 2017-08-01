@@ -44,8 +44,9 @@ class Grafo
     void desmarcarVisitado(vertice v);
     void desmarcarVertices();
     void insertarVertice(vertice v);
-    //TODO void insertarVertice2(vertice v); //INSERTA OREDENADO
+    void insertarVerticeO(vertice v); //INSERTA OREDENADO
     void insertarArco(vertice v, vertice w, float costo);
+    void insertarArcoO(vertice v, vertice w, float costo);
     void eliminarVertice(vertice v);
     void eliminarArco(vertice v, vertice w);
     /*------DESTRUCTORES------*/
@@ -603,6 +604,58 @@ void Grafo<vertice>::insertarVertice(vertice v)
 }
 
 template<class vertice>
+void Grafo<vertice>::insertarVerticeO(vertice v)
+{
+  NodoV<vertice> *nuevo, *act, *ant;
+  bool band;
+
+  if(!this->existeVertice(v))
+  {
+    nuevo = new NodoV<vertice>;
+    nuevo->modInfo(v);
+    if(this->primero == NULL)
+    {
+      this->primero = nuevo;
+    }
+    else
+    {
+      act = this->primero;
+      ant = NULL;
+      band = false;
+      while(act != NULL && !band)
+      {
+        if(v < act->obtInfo())
+        {
+          band = true;
+          if(this->primero == act)
+          {
+            nuevo->modProx(this->primero);
+            this->primero = nuevo;
+          }
+          else
+          {
+            ant->modProx(nuevo);
+            nuevo->modProx(act);
+          }
+        }
+        else
+        {
+          ant = act;
+          act = act->obtProx();
+        }
+      }
+      if(!band)
+      {
+        ant->modProx(nuevo);
+      }
+    }
+
+
+    this->vertices = this->vertices + 1;
+  }
+}
+
+template<class vertice>
 void Grafo<vertice>::insertarArco(vertice v, vertice w, float costo)
 {
   NodoV<vertice> *act, *aux2, *aux3;
@@ -711,6 +764,16 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w, float costo)
       this->arcos = this->arcos + 1;
     }
   }
+}
+
+template<class vertice>
+void Grafo<vertice>::insertarArcoO(vertice v, vertice w, float costo)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady, *nuevo, *ant;
+
+  if(!this->existeArco(v, w))
+  {}
 }
 
 template<class vertice>

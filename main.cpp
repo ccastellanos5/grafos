@@ -8,12 +8,12 @@ int main()
   Grafo<char> G, G2;
   Lista<char> vertices, predecesores;
 
-  G.insertarVertice('a');
-  G.insertarVertice('b');
-  G.insertarVertice('c');
-  G.insertarVertice('d');
-  G.insertarVertice('f');
-  G.insertarVertice('e');
+  G.insertarVerticeO('c');
+  G.insertarVerticeO('b');
+  G.insertarVerticeO('a');
+  G.insertarVerticeO('e');
+  G.insertarVerticeO('f');
+  G.insertarVerticeO('d');
 
   G.insertarArco('a','f',0);
   G.insertarArco('a','b',0);
@@ -25,14 +25,10 @@ int main()
   G.insertarArco('d','e',0);
   G.insertarArco('f','b',0);
 
-  G.DFS('a',vertices);
-  vertices.invertir();
+  cout << "Sali del procedimiento" << endl;
+  vertices = G.obtVertices();
   cout << vertices << endl;
-  vertices.vaciar();
-
-  G.DFS('c',vertices);
-  vertices.invertir();
-  cout << vertices << endl;
+  cout << "Cardinalidad: " << G.cardinalidad() << endl;
 
   cout << G << endl;
 
