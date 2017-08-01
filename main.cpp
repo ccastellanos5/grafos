@@ -17,7 +17,7 @@ int main()
 
   G.insertarArco('a','f',0);
   G.insertarArco('a','b',0);
-  G.insertarArco('a','c',0);
+  G.insertarArco('a','c',5);
   G.insertarArco('b','d',0);
   G.insertarArco('c','d',0);
   G.insertarArco('c','e',0);
@@ -25,19 +25,16 @@ int main()
   G.insertarArco('d','e',0);
   G.insertarArco('f','b',0);
 
-  vertices = G.obtVertices();
-  vertices.imprimir();
-  cout << "DESPUES DE ELIMINAR" << endl;
+  G.DFS('a',vertices);
+  vertices.invertir();
+  cout << vertices << endl;
+  vertices.vaciar();
 
-  G.eliminarVertice('a');
-  vertices = G.obtVertices();
-  vertices.imprimir();
+  G.DFS('c',vertices);
+  vertices.invertir();
+  cout << vertices << endl;
 
-  G.print();
+  cout << G << endl;
 
-
-  cout << "Grado Interno: " << G.gradoV('a') << endl;
-  cout << "Numero de arcos: " << G.obtNumArcos() << endl;
-  cout << "Cardinalidad: " << G.cardinalidad() << endl;
   return 0;
 }

@@ -20,11 +20,12 @@ class Grafo
     /*------CONSTRUCTORES---------*/
     Grafo();
     Grafo(Grafo<vertice> &orig);
-    void copiar(const Grafo<vertice> &orig);
+    void copiar(const Grafo<vertice> &orig); //TODO que copie tal cual el grafo
     /*------CONSULTORES------*/
     bool esVacio();
     int cardinalidad();
     int obtNumArcos();
+    float obtCostoArco(vertice v, vertice w);
     Lista<vertice> obtVertices();
     bool existeVertice(vertice v);
     bool existeArco(vertice v, vertice w);
@@ -34,6 +35,8 @@ class Grafo
     int gradoV(vertice);
     Lista<vertice> sucesores(vertice v);
     Lista<vertice> predecesores(vertice v);
+    bool esBicolor();
+    void DFS(vertice v, Lista<vertice> &recorrido);
     /*------IMPRESORES------*/
     void print();
     /*------MODIFICADORES------*/
@@ -41,11 +44,18 @@ class Grafo
     void desmarcarVisitado(vertice v);
     void desmarcarVertices();
     void insertarVertice(vertice v);
+    //TODO void insertarVertice2(vertice v); //INSERTA OREDENADO
     void insertarArco(vertice v, vertice w, float costo);
     void eliminarVertice(vertice v);
     void eliminarArco(vertice v, vertice w);
     /*------DESTRUCTORES------*/
     ~Grafo();
+
+    /*------SOBRECARGA DE OPERADORES------*/
+    template<class Vertice>
+    friend ostream& operator<<(ostream& out, Grafo<Vertice>& G);
+    bool operator ==(Grafo<vertice> &G);
+    Grafo<vertice>& operator=(const Grafo<vertice> &G);
 
 };
 /*---------------------------CONSTRUCTORES---------------------------*/
@@ -74,8 +84,6 @@ void Grafo<vertice>::copiar(const Grafo<vertice> &orig)
 
   if(orig.primero != NULL)
   {
-    this->arcos = orig.arcos;
-    this->vertices = orig.vertices;
     act = orig.primero;
     //Construye primero la lista de vertices
     while(act != NULL)
@@ -151,6 +159,43 @@ template<class vertice>
 int Grafo<vertice>::obtNumArcos()
 {
     return this->arcos;
+}
+
+template<class vertice>
+float Grafo<vertice>::obtCostoArco(vertice v, vertice w)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady;
+  bool band;
+  float costo;
+
+  band = false;
+  act = this->primero;
+  while(act!= NULL && !band)
+  {
+    if (act->obtInfo() == v)
+    {
+      ady = act->obtPrimero();
+      while(ady != NULL && !band)
+      {
+        if(ady->obtVertice()->obtInfo()==w)
+        {
+          costo = ady->obtCosto();
+          band = true;
+        }
+        else
+        {
+          ady = ady->obtProx();
+        }
+      }
+    }
+    act = act->obtProx();
+  }
+
+  if(band)
+    return costo;
+  else
+    return -1;
 }
 
 template<class vertice>
@@ -432,6 +477,31 @@ Lista<vertice> Grafo<vertice>::predecesores(vertice v)
   }
   return L;
 }
+
+template<class vertice>
+bool Grafo<vertice>::esBicolor()
+{
+  return this->arcos == this->vertices - 1;
+}
+
+template <class vertice>
+void Grafo<vertice>::DFS(vertice v, Lista<vertice> &recorrido)
+{
+  Lista<vertice> suc;
+  vertice w;
+
+  suc = this->sucesores(v);
+  while(!suc.esVacia())
+  {
+    w = suc.consultar(1);
+    if(!recorrido.esta(w))
+    {
+      recorrido.insertar(w,1);
+      this->DFS(w,recorrido);
+    }
+    suc.eliminar(1);
+  }
+}
 /*---------------------------IMPRESORES---------------------------*/
 template<class vertice>
 void Grafo<vertice>::print()
@@ -681,8 +751,6 @@ void Grafo<vertice>::eliminarVertice(vertice v)
     }
     else
     {
-
-      cout << "ENTREEEEEE---------------"<< act->obtInfo() << endl;
       aux = act->obtPrimero();
       band = false;
       while(aux!=NULL && !band)
@@ -782,4 +850,90 @@ Grafo<vertice>::~Grafo()
   this->vertices = 0;
   this->arcos = 0;
 }
+
+/*---------------------------SOBRECARGA DE OPERADORES---------------------------*/
+template <class Vertice>
+ostream& operator<<(ostream& out, Grafo<Vertice> &G)
+{
+  NodoV<Vertice> *act;
+  NodoA<Vertice> *ady;
+
+  act = G.primero;
+
+  if(act == NULL)
+    out << "El grafo esta vacio" << endl;
+  else
+  {
+    out << "-----GRAFO-----" << endl;
+
+    while(act != NULL)
+    {
+      out << " " << act->obtInfo();
+      ady = act->obtPrimero();
+
+      while(ady != NULL)
+      {
+        out << " " << ady->obtVertice()->obtInfo();
+        ady = ady->obtProx();
+      }
+      out << "\n";
+      act = act->obtProx();
+    }
+  }
+  return out;
+}
+
+template <class vertice>
+bool Grafo<vertice>::operator==(Grafo<vertice> &G)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady;
+  bool band, band2;
+
+  if(this->primero == NULL && G.primero ==NULL)
+    band = true;
+  else
+  {
+    if(this->vertices != G.vertices || this->arcos!=G.arcos)
+    {
+       band = false;
+    }
+    else
+    {
+      act = this->primero;
+      band = true;
+      while( act != NULL && band)
+      {
+        if(G.existeVertice(act->obtInfo()) == false)
+          band = false;
+        else
+        {
+          ady = act->obtPrimero();
+          band2 = true;
+          while(ady != NULL && band2)
+          {
+            if(G.existeArco(act->obtInfo(), ady->obtVertice()->obtInfo()) == false)
+            {
+              band = false;
+              band2 = false;
+            }
+            else
+              ady = ady->obtProx();
+          }
+        }
+        act = act->obtProx();
+      }
+    }
+  }
+  return band;
+}
+
+template <class vertice>
+Grafo<vertice>& Grafo<vertice>::operator=(const Grafo<vertice> &G)
+{
+
+  this->copiar(G);
+  return *this;
+}
+
 #endif
