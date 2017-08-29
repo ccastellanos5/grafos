@@ -36,7 +36,13 @@ class Grafo
     Lista<vertice> sucesores(vertice v);
     Lista<vertice> predecesores(vertice v);
     bool esBicolor();
-    void DFS(vertice v, Lista<vertice> &recorrido);
+    bool esSumidero(vertice v);
+    bool esFuente(vertice v);
+    Lista<vertice> sumideros();
+    Lista<vertice> fuentes();
+    void DFS(vertice v, Lista<vertice> &recorrido); //Recorrido en profundidad
+    void arbolDFS(vertice v, Lista<vertice> &V, Lista<vertice> &W, Lista<vertice> &recorrido);
+    Lista<vertice> BFS(vertice v); //recorrdio por anchura
     /*------IMPRESORES------*/
     void print();
     /*------MODIFICADORES------*/
@@ -485,6 +491,119 @@ bool Grafo<vertice>::esBicolor()
   return this->arcos == this->vertices - 1;
 }
 
+template<class vertice>
+bool Grafo<vertice>::esSumidero(vertice v)
+{
+  NodoV<vertice> *act;
+  bool band;
+
+  band = false;
+  act=this->primero;
+
+  while(act!=NULL && !band)
+  {
+    if(act->obtInfo() == v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+
+  if(band)
+  {
+    if(act->obtPrimero() != NULL)
+      band = false;
+  }
+
+  return band;
+}
+
+template<class vertice>
+bool Grafo<vertice>::esFuente(vertice v)
+{
+  NodoV<vertice> *act;
+  NodoA<vertice> *ady;
+  bool band;
+
+  band = false;
+  act=this->primero;
+
+  while(act!=NULL && !band)
+  {
+    if(act->obtInfo() == v)
+      band = true;
+    else
+      act = act->obtProx();
+  }
+
+  if(band)
+  {
+    act = this->primero;
+    band = false;
+    while(act!=NULL && !band)
+    {
+      if(act->obtInfo() != v)
+      {
+        ady = act->obtPrimero();
+        while(ady!=NULL && !band)
+        {
+          if(ady->obtVertice()->obtInfo() == v)
+          band = true;
+          else
+          ady = ady->obtProx();
+        }
+      }
+      act = act->obtProx();
+    }
+  }
+
+  return !band;
+
+}
+
+template<class vertice>
+Lista<vertice> Grafo<vertice>::sumideros()
+{
+  Lista<vertice> result;
+  NodoV<vertice> *act;
+  vertice v;
+
+  act = this->primero;
+
+  while(act!=NULL)
+  {
+    v = act->obtInfo();
+    if(this->esSumidero(v))
+      result.insertar(v,1);
+
+    act = act->obtProx();
+  }
+  result.invertir();
+
+  return result;
+}
+
+template<class vertice>
+Lista<vertice> Grafo<vertice>::fuentes()
+{
+  Lista<vertice> result;
+  NodoV<vertice> *act;
+  vertice v;
+
+  act = this->primero;
+
+  while(act!=NULL)
+  {
+    v = act->obtInfo();
+    if(this->esFuente(v))
+      result.insertar(v,1);
+
+    act = act->obtProx();
+  }
+  result.invertir();
+
+  return result;
+}
+//NOTA: Si comienza desde el primero va a parecer que se comenzo desde el segundo, TODO revisar eso
 template <class vertice>
 void Grafo<vertice>::DFS(vertice v, Lista<vertice> &recorrido)
 {
@@ -492,6 +611,7 @@ void Grafo<vertice>::DFS(vertice v, Lista<vertice> &recorrido)
   vertice w;
 
   suc = this->sucesores(v);
+
   while(!suc.esVacia())
   {
     w = suc.consultar(1);
@@ -503,6 +623,60 @@ void Grafo<vertice>::DFS(vertice v, Lista<vertice> &recorrido)
     suc.eliminar(1);
   }
 }
+
+template <class vertice>
+void Grafo<vertice>::arbolDFS(vertice v, Lista<vertice> &V, Lista<vertice> &W, Lista<vertice> &recorrido)
+{
+  Lista<vertice> suc;
+  vertice w;
+
+  suc = this->sucesores(v);
+  if(!recorrido.esta(v))
+    recorrido.insertar(v, 1);
+  while(!suc.esVacia())
+  {
+    w = suc.consultar(1);
+    if(!recorrido.esta(w))
+    {
+      recorrido.insertar(w, 1);
+      V.insertar(v,1);
+      W.insertar(w,1);
+      this->arbolDFS(w,V, W, recorrido);
+    }
+    suc.eliminar(1);
+  }
+}
+
+template<class vertice>
+Lista<vertice> Grafo<vertice>::BFS(vertice v)
+{
+  Lista<vertice> result, aux;
+  vertice element;
+  Cola<vertice> c;
+
+  c.encolar(v);
+  while(!c.esVacia())
+  {
+    element = c.frente();
+    aux = this->sucesores(element);
+
+    result.insertar(element, 1);
+    while(!aux.esVacia())
+    {
+      element = aux.consultar(1);
+      if(!result.esta(element))
+      {
+        c.encolar(element);
+      }
+      aux.eliminar(1);
+    }
+    c.desencolar();
+  }
+
+  result.invertir();
+  return result;
+}
+
 /*---------------------------IMPRESORES---------------------------*/
 template<class vertice>
 void Grafo<vertice>::print()
@@ -769,11 +943,248 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w, float costo)
 template<class vertice>
 void Grafo<vertice>::insertarArcoO(vertice v, vertice w, float costo)
 {
-  NodoV<vertice> *act;
-  NodoA<vertice> *ady, *nuevo, *ant;
+  NodoV<vertice> *act, *aux2, *aux3, *ante;
+  NodoA<vertice> *aux, *ant, *ady;
+  bool band, band2, band3;
+  if(this->primero == NULL)
+  {
+    //creo el primero nodo vertice
+    aux2 = new NodoV<vertice>;
+    aux2->modInfo(v);
+    //creo el segundo nodo vertice
+    aux3 = new NodoV<vertice>;
+    aux3->modInfo(w);
 
-  if(!this->existeArco(v, w))
-  {}
+    if(aux2->obtInfo() < aux3->obtInfo())
+    {
+      this->primero = aux2;
+      aux2->modProx(aux3);
+    }
+    else
+    {
+      this->primero = aux3;
+      aux3->modProx(aux2);
+    }
+
+    //creo el nodo adyancente
+    aux = new NodoA<vertice>;
+    //lo enlazo con el vertice v
+    aux2->modPrimero(aux);
+    //apunta al vertice w
+    aux->modVertice(aux3);
+    aux->modCosto(costo);
+    this->arcos = this->arcos + 1;
+    this->vertices = this->vertices + 2;
+  }
+  else
+  {
+    if(!this->existeArco(v, w))
+    {
+      act = this->primero;
+      band = false;
+      band2 = false;
+      band3 = false;
+
+      /*Busca a v y w al mismo tiempo por si existe una y otra no*/
+      while(act != NULL && !band3)
+      {
+        if(act->obtInfo() == v) // Aqui busca a v
+        {
+          band = true;
+          aux2 = act;
+        }
+        else if(act->obtInfo()==w) //aqui busca a w
+        {
+          band2 = true;
+          aux3 = act;
+        }
+
+        if(!band || !band2) //Si no ha encontrado ambas entonces sigue buscando hasta encontrarlas
+        {
+          act = act->obtProx();
+        }
+        else
+        {
+          band3 = true;      //Cuando la encuentra a ambas asino haya terminado de recorrer entonces igual se sale del ciclo
+        }
+      }
+
+      if(band && !band2) //Si existe solo el nodo v
+      {
+        act = this->primero;
+        band = false;
+        while(act != NULL && !band)
+        {
+          if(w < act->obtInfo())
+          {
+            band = true;
+            if(this->primero == act)
+            {
+              aux3->modProx(act);
+              this->primero = aux3;
+            }
+            else
+            {
+              aux3->modProx(act);
+              ante->modProx(aux3);
+            }
+          }
+          else
+          {
+            ante = act;
+            act = act->obtProx();
+          }
+        }
+
+        if(!band)
+        {
+          ante->modProx(aux3);
+        }
+        this->vertices = this->vertices + 1;
+      }
+      else
+      {
+        if(band2 && !band) //si solo existe w
+        {
+          act = this->primero;
+          band = false;
+          while(act != NULL && !band)
+          {
+            if(v < act->obtInfo())
+            {
+              band = true;
+              if(this->primero == act)
+              {
+                aux2->modProx(act);
+                this->primero = aux2;
+              }
+              else
+              {
+                aux2->modProx(act);
+                ante->modProx(aux2);
+              }
+            }
+            else
+            {
+              ante = act;
+              act = act->obtProx();
+            }
+          }
+
+          if(!band)
+          {
+            ante->modProx(aux2);
+          }
+          this->vertices = this->vertices + 1;
+        }
+        else if(!band && !band2) //Si no exitse v ni w pero tampoco es vacio el grafo
+        {
+          aux2 = new NodoV<vertice>;
+          aux2->modInfo(v);
+
+          aux3 = new NodoV<vertice>;
+          aux3->modInfo(w);
+
+          act = this->primero;
+          band = false;
+          while(act != NULL && !band)
+          {
+            if(v < act->obtInfo())
+            {
+              band = true;
+              if(this->primero == act)
+              {
+                aux2->modProx(act);
+                this->primero = aux2;
+              }
+              else
+              {
+                aux2->modProx(act);
+                ante->modProx(aux2);
+              }
+            }
+            else
+            {
+              ante = act;
+              act = act->obtProx();
+            }
+          }
+
+          if(!band)
+          {
+            ante->modProx(aux2);
+          }
+
+          act = this->primero;
+          band = false;
+          while(act != NULL && !band)
+          {
+            if(w < act->obtInfo())
+            {
+              band = true;
+              if(this->primero == act)
+              {
+                aux3->modProx(act);
+                this->primero = aux3;
+              }
+              else
+              {
+                aux3->modProx(act);
+                ante->modProx(aux3);
+              }
+            }
+            else
+            {
+              ante = act;
+              act = act->obtProx();
+            }
+          }
+          if(!band)
+          {
+            ante->modProx(aux3);
+          }
+          this->vertices = this->vertices + 2;
+        }
+      }
+      aux = new NodoA<vertice>;
+      aux->modVertice(aux3);
+      aux->modCosto(costo);
+      ady = aux2->obtPrimero();
+
+      if(ady == NULL)
+        aux2->modPrimero(aux);
+      else
+      {
+        band = false;
+        while(ady != NULL && !band)
+        {
+          if(aux->obtVertice()->obtInfo() < ady->obtVertice()->obtInfo())
+          {
+            band = true;
+            if(ady == aux2->obtPrimero())
+            {
+              aux->modProx(ady);
+              aux2->modPrimero(aux);
+            }
+            else
+            {
+              aux->modProx(ady);
+              ant->modProx(aux);
+            }
+          }
+          else
+          {
+            ant = ady;
+            ady = ady->obtProx();
+          }
+        }
+
+        if(!band)
+          ant->modProx(aux);
+      }
+      this->arcos = this->arcos + 1;
+    }
+  }
 }
 
 template<class vertice>
