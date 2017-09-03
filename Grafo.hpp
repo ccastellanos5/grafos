@@ -20,7 +20,7 @@ class Grafo
     /*------CONSTRUCTORES---------*/
     Grafo();
     Grafo(Grafo<vertice> &orig);
-    void copiar(const Grafo<vertice> &orig); //TODO que copie tal cual el grafo
+    void copiar(const Grafo<vertice> &orig);
     /*------CONSULTORES------*/
     bool esVacio();
     int cardinalidad();
@@ -43,6 +43,8 @@ class Grafo
     void DFS(vertice v, Lista<vertice> &recorrido); //Recorrido en profundidad
     void arbolDFS(vertice v, Lista<vertice> &V, Lista<vertice> &W, Lista<vertice> &recorrido);
     Lista<vertice> BFS(vertice v); //recorrdio por anchura
+    Lista<vertice> caminoHamiltoniano();
+    void caminoHam(vertice v, Lista<vertice> &result, bool &band);
     /*------IMPRESORES------*/
     void print();
     /*------MODIFICADORES------*/
@@ -85,69 +87,58 @@ Grafo<vertice>::Grafo(Grafo<vertice> &orig)
 template<class vertice>
 void Grafo<vertice>::copiar(const Grafo<vertice> &orig)
 {
-  NodoV<vertice> *act, *nuevoV, *ant, *aux, *estatico;
+  NodoV<vertice> *act, *nuevoV, *ant, *aux, *act2;
   NodoA<vertice> *ady, *nuevoA, *antA;
   bool band;
 
-  if(orig.primero != NULL)
+  act = orig.primero;
+  while(act!=NULL)
   {
-    act = orig.primero;
-    //Construye primero la lista de vertices
-    while(act != NULL)
-    {
-      this->insertarVertice(act->obtInfo());
-      act = act->obtProx();
-    }
+    nuevoV = new NodoV<vertice>;
+    nuevoV->modInfo(act->obtInfo());
 
-    act = orig.primero;
-    while(act != NULL)
-    {
-      ady = act->obtPrimero();
-      while(ady != NULL)
-      {
-        this->insertarArco(act->obtInfo(), ady->obtVertice()->obtInfo(), ady->obtCosto());
-        ady = ady->obtProx();
-      }
-      // aux = orig.primero;
-      // band = false;
-      // while(aux != NULL && !band)
-      // {
-      //   if(aux->obtInfo()==act->obtInfo())
-      //   {
-      //     estatico = aux;
-      //     band = true;
-      //   }
-      //   else
-      //     aux = aux->obtProx();
-      // }
-      // while(ady != NULL)
-      // {
-      //   nuevoA = new NodoA<vertice>;
-      //   aux = orig.primero;
-      //   band = false;
-      //   while(aux!=NULL && !band)
-      //   {
-      //
-      //     if(aux->obtInfo() == ady->obtVertice()->obtInfo())
-      //     {
-      //       nuevoA->modVertice(aux);
-      //       band = true;
-      //     }
-      //     else
-      //       aux = aux->obtProx();
-      //   }
-      //
-      //   if(estatico->obtPrimero() == NULL)
-      //     estatico->modPrimero(nuevoA);
-      //   else
-      //     antA->modProx(nuevoA);
-      //
-      //   antA = nuevoA;
-      //   ady = ady->obtProx();
-      // }
-      act = act->obtProx();
-    }
+    if(orig.primero == act)
+      this->primero = nuevoV;
+    else
+      ant->modProx(nuevoV);
+
+    ant = nuevoV;
+    act = act->obtProx();
+
   }
+
+  act = orig.primero;
+  act2 = this->primero;
+  while(act!=NULL)
+  {
+    ady = act->obtPrimero();
+    while(ady!=NULL)
+    {
+      nuevoA = new NodoA<vertice>;
+      aux = this->primero;
+      band = false;
+      while(aux!=NULL && !band)
+      {
+        if(aux->obtInfo() == ady->obtVertice()->obtInfo())
+          band = true;
+        else
+          aux = aux->obtProx();
+      }
+      nuevoA->modVertice(aux);
+
+      if(ady == act->obtPrimero())
+        act2->modPrimero(nuevoA);
+      else
+        antA->modProx(nuevoA);
+
+      antA = nuevoA;
+      ady= ady->obtProx();
+    }
+    act = act->obtProx();
+    act2 = act2->obtProx();
+  }
+  this->vertices = orig.vertices;
+  this->arcos = orig.arcos;
 }
 /*---------------------------CONSULTORES---------------------------*/
 template<class vertice>
@@ -677,6 +668,59 @@ Lista<vertice> Grafo<vertice>::BFS(vertice v)
   return result;
 }
 
+template<class vertice>
+Lista<vertice> Grafo<vertice>::caminoHamiltoniano()
+{
+  NodoV<vertice> *act;
+  bool band;
+  Lista<vertice> result;
+
+  band = false;
+  act = this->primero;
+
+  while(act!=NULL && !band)
+  {
+    result.insertar(act->obtInfo(), 1);
+    this->caminoHam(act->obtInfo(), result, band);
+
+    act = act->obtProx();
+    if(!band)
+      result.vaciar();
+  }
+  result.invertir();
+  return result;
+}
+
+template <class vertice>
+void Grafo<vertice>::caminoHam(vertice v, Lista<vertice> &result, bool &band)
+{
+  vertice ady;
+  Lista<vertice> aux;
+
+  aux = this->sucesores(v);
+  while(!aux.esVacia() && !band)
+  {
+    ady = aux.consultar(1);
+    aux.eliminar(1);
+    if(!result.esta(ady))
+    {
+      result.insertar(ady, 1);
+      if(result.obtLong() == this->vertices)
+      {
+        band = true;
+      }
+      else
+      {
+        caminoHam(ady, result, band);
+      }
+
+      if(!band)
+      {
+        result.eliminar(1);
+      }
+    }
+  }
+}
 /*---------------------------IMPRESORES---------------------------*/
 template<class vertice>
 void Grafo<vertice>::print()
@@ -854,7 +898,7 @@ void Grafo<vertice>::insertarArco(vertice v, vertice w, float costo)
     aux->modVertice(aux3);
     aux->modCosto(costo);
     this->arcos = this->arcos + 1;
-    this->vertices = this->vertices + 1;
+    this->vertices = this->vertices + 2;
   }
   else
   {
@@ -1013,6 +1057,8 @@ void Grafo<vertice>::insertarArcoO(vertice v, vertice w, float costo)
       {
         act = this->primero;
         band = false;
+        aux3 = new NodoV<vertice>;
+        aux3->modInfo(w);
         while(act != NULL && !band)
         {
           if(w < act->obtInfo())
@@ -1048,6 +1094,8 @@ void Grafo<vertice>::insertarArcoO(vertice v, vertice w, float costo)
         {
           act = this->primero;
           band = false;
+          aux2 = new NodoV<vertice>;
+          aux2->modInfo(v);
           while(act != NULL && !band)
           {
             if(v < act->obtInfo())

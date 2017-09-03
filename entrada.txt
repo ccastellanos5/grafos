@@ -1,10 +1,7 @@
 A B
-B C
+B E
+B D
+D A
 C D
-D E
-D F
-D G
-E F
-G H
-A G
+A C
 * *

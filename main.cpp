@@ -15,20 +15,24 @@ int main()
 
   while( v != '*' && w != '*')
   {
-    G.insertarArco(v, w, 0);
+    G.insertarArcoO(v, w, 0);
     cin.get();
     cin >> v;
     cin.get();
     cin >> w;
   }
 
-  vertices = G.sumideros();
-  predecesores = G.fuentes();
+  G2.copiar(G);
+  cout << "CARDINALIDAD DE G: " << G.cardinalidad()<<endl;
+  cout << "CARDINALIDAD DE G2: " << G2.cardinalidad()<<endl;
 
-  cout << "SUMIDEROS:" << endl;
-  cout << vertices << endl;
+  G.print();
+  cout << "----------------------" <<endl;
+  G2.print();
+  if(G == G2)
+  {
+    cout<<"SON IGUALES"<< endl;
+  }
 
-  cout << "FUENTES" << endl;
-  cout << predecesores << endl;
   return 0;
 }
