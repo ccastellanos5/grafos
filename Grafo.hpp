@@ -269,39 +269,6 @@ bool Grafo<vertice>::existeArco(vertice v, vertice w)
   }
 
   return band;
-
-  // Esto es si es dirigido
-  // if(this->primero != NULL)
-  // {
-  //     act = this->primero;
-  //     while(act != NULL && !band && (act->obtInfo() == v || act->obtInfo() == w))
-  //     {
-  //       aux = act->obtPrimero();
-  //       if(act->obtInfo()==v)
-  //       {
-  //         while(aux != NULL)
-  //         {
-  //           if(aux->obtVertice()->obtInfo()==w)
-  //           {
-  //             band = true;
-  //           }
-  //           aux = aux->obtProx();
-  //         }
-  //       }
-  //       else
-  //       {
-  //         while(aux != NULL)
-  //         {
-  //           if(aux->obtVertice()->obtInfo()==v)
-  //           {
-  //             band = true;
-  //           }
-  //           aux = aux->obtProx();
-  //         }
-  //       }
-  //       act = act->obtProx();
-  //     }
-  // }
 }
 
 //TIENE QUE EXISTIR EL VERTICE
